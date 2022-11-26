@@ -1,0 +1,91 @@
+#include <stdio.h>
+#include <stdbool.h>
+#include <stdlib.h>
+
+
+/*1. Teniendo un TDA lista enlazada ordenada de enteros definido como
+typedef struct {
+struct nodo *prim;
+} lista_ordenada_t;
+y su nodo como
+struct nodo {
+struct nodo *sig;
+int dato;
+};
+implementar una primitiva
+bool lista_ordenada_completar(lista_ordenada_t *l);
+que reciba una lista l y complete tanto los números faltantes como elimine los repetidos. Por
+ejemplo, si la función recibe la lista [1, 3, 3, 4, 6] la misma debe quedar como [1, 2, 3,
+4, 5, 6].
+En caso de una falla de memoria interrumpir el procesamiento y devolver false, no hace falta
+restaurar a l a su condición previa.*/
+
+typedef struct {
+struct nodo *prim;
+} lista_ordenada_t;
+
+struct nodo {
+struct nodo *sig;
+int dato;
+};
+
+
+bool lista_ordenada_completar(lista_ordenada_t *l) {
+    struct nodo *actual = l->prim;
+    while(actual->sig != NULL) {
+        struct nodo *sig = actual->sig;
+        if(actual->dato == sig->dato)
+            actual->sig = sig->sig;
+        else if(actual->dato + 1 < sig->dato) {
+            struct nodo *nuevo = malloc((actual->dato +1) * sizeof(struct nodo));
+            if(nuevo == NULL) return false;
+            actual->sig = nuevo;
+            actual = nuevo;
+        }
+        else {
+            actual = sig;
+        }
+    }
+    return true;
+}
+
+
+/*2. Implementar una función
+void filtrar(void *v[], size_t *n, bool (*evaluar)(void *),
+void (*eliminar)(void *));
+que reciba un vector v de *n elementos y que elimine del vector todos los elementos sobre los
+cuales la función evaluar devuelva true, cada elemento se destruye con eliminar. Al finalizar
+la operación el vector debe contener sólo los elementos no eliminados y debe actualizarse la nueva
+longitud.*/
+
+void filtrar(void *v[], size_t *n, bool (*evaluar)(void *), void (*eliminar)(void *)) {
+    for(size_t i = 0; i < *n; i++) {
+        if(evaluar(v[i])) {
+            eliminar(v[i]);
+        }
+        v[i] = v[--(*n)];
+        i--;
+    }
+}
+
+
+/*3. Implementar una función recursiva
+size_t buscar(const int v[], size_t n, int elem);
+que dado un vector v de longitud n devuelva la posición del vector en la cual se encuentra el
+elemento elem. Si elem no se encontrara en v se debe devolver n.*/
+
+size_t buscar(const int v[], size_t n, int elem) {
+    if(n == 0) {
+        return 0;
+    }
+    size_t m = n/2;
+    if(v[m] == elem) {
+        return m;
+    }
+    if(v[m] > elem) {
+        return buscar(v, m - 1, elem);
+    }
+    else {
+        return buscar(v + m + 1, n - m - 1, elem);
+    }
+}
