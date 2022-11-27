@@ -1,0 +1,86 @@
+#include <stdio.h>
+#include <stdbool.h>
+#include <stdlib.h>
+
+/*1. Teniendo el TDA Conjunto de enteros el cual se representa sobre typedef struct {int *e; size_t n;} conjunto_t;
+en donde e es un vector ordenado de longitud n con los elementos contenidos en el conjunto se pide:
+a. Implementar la primitiva
+conjunto_t *conjunto_interseccion(const conjunto_t *a, const conjunto_t *b);
+que compute la intersección entre dos conjuntos. (Asumir que se tiene la primitiva conjunto_t *conjunto_crear();
+y la función auxiliar static bool _agregar_al_final(conjunto_t *c, int e); que agrega un elemento al
+final sin chequear si esa es su ubicación correcta. Para simplificar: No hace falta chequear fallas de memoria.)
+Aclaración: La función debe resolver el problema eficientemente sin llamar a funciones de ordenamiento ni
+implementar ningún método de ordenamiento.
+b. Si implementáramos la primitiva
+bool conjunto_agregar(conjunto_t *c, int e);
+con una llamada a _agregar_al_final(c, e), ¿con qué método nos convendría ordenar el arreglo después?,
+justificar brevemente.*/
+
+typedef struct {
+    int *e; size_t n;
+} conjunto_t;
+
+conjunto_t *conjunto_crear();
+//static bool _agregar_al_final(conjunto_t *c, int e);
+
+conjunto_t *conjunto_interseccion(const conjunto_t *a, const conjunto_t *b) {
+    conjunto_t *c = conjunto_crear();
+    c->e = malloc((a->n + b->n)*sizeof(int));
+    if(c->e == NULL) {
+        free(c);
+        return NULL;
+    }
+    size_t ia = 0, ib = 0;
+    while(ia < a->n && ib < b->n) {
+        if(a->e[ia] < b->e[ib])
+            c->e[c->n++] = a->e[ia++];
+        else if(a->e[ia] > b->e[ib])
+            c->e[c->n++] = b->e[ib++];
+        else {
+            c->e[c->n++] = a->e[ia++];
+            ib++;
+        }
+    }
+    while(ia < a->n)
+        c->e[c->n++] = a->e[ia++];
+    while(ib < b->n)
+        c->e[c->n++] = b->e[ib++];
+    return c;
+}
+
+
+
+/*2. Teniendo una lista de enteros en la cual la lista se representa typedef struct {struct nodo *prim;} lista_t; y
+el nodo se representa como struct nodo {struct nodo *sig; int dato;}; implementar la primitiva
+void lista_enteros_borrar(lista_t *l, int e);
+que borre todas las ocurrencias del dato e en la lista.*/
+
+typedef struct {
+    struct nodo *prim;
+} lista_t;
+
+struct nodo {
+    struct nodo *sig; 
+    int dato;
+};
+
+void lista_enteros_borrar(lista_t *l, int e) {
+    struct nodo *anterior = l->prim;
+    while(anterior != NULL) {
+        struct nodo *actual = anterior;
+        if(actual->dato == e) {
+            anterior = actual->sig;
+            free(actual);
+        }
+        else {
+            anterior = actual->sig;
+        }
+    }
+}
+
+
+/*3. Se representa a un color RGB de 24 bits como un entero sin signo 0xAABBCC donde el byte 0xAA representa el rojo, 0xBB
+el verde y 0xCC el azul. Se pide:
+a. Implementar la función unsigned char get_rojo(unsigned int color); que devueva el valor de la componente
+roja.
+b. Implementar la función void set_verde(unsigned int *color, unsigned char verde); que cargue la componente de verde en el color recibido.*/
