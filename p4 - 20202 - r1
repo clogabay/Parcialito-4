@@ -1,0 +1,105 @@
+#include <stdio.h>
+#include <stdbool.h>
+#include <stdlib.h>
+#include <string.h>
+
+/*1. Teniendo un TDA lista enlazada de enteros definido como
+typedef struct {
+struct nodo *prim;
+} lista_t;
+y su nodo como
+struct nodo {
+struct nodo *sig;
+int dato;
+};
+y además teniendo ya implementada la primitiva void lista_destruir(lista_t *l); implementar una primitiva
+lista_t *lista_clonar(const lista_t *l);
+que reciba una lista l y devuelva una copia idéntica de la misma en memoria nueva.*/
+
+typedef struct {
+struct nodo *prim;
+} lista_t;
+
+struct nodo {
+struct nodo *sig;
+int dato;
+};
+
+void lista_destruir(lista_t *l);
+
+struct nodo *nodo_crear(int dato) {
+    struct nodo *nuevo = malloc(sizeof(struct nodo));
+    if(nuevo == NULL) return NULL;
+    nuevo->dato = dato;
+    nuevo->sig = NULL;
+    return nuevo;
+}
+
+lista_t *lista_clonar(const lista_t *l) {
+    lista_t *l_nueva = malloc(sizeof(lista_t));
+    if(l_nueva == NULL) return NULL;
+    l_nueva->prim = NULL;
+    struct nodo *nodo_anterior = NULL;
+    struct nodo *nodo_actual = l->prim;
+    while(nodo_actual != NULL) {
+        struct nodo *lista_actual = nodo_crear(nodo_actual->dato);
+        if(lista_actual == NULL) {
+            lista_destruir(l_nueva);
+            return NULL;
+        }
+        if(nodo_anterior == NULL) {
+            l_nueva->prim = nodo_actual;
+        }
+        else {
+            nodo_anterior->sig = lista_actual;
+        }
+       nodo_actual = nodo_actual->sig;
+       nodo_anterior = lista_actual;
+    }
+    return l_nueva;
+}
+
+/*2. Se sabe que la combinación de enfermedades aumenta los riesgos de mortalidad ante el COVID-19.
+Se tiene un listado ordenado alfabéticamente de afectados por enfermedades cardíacas y otro
+listado, también ordenado alfabéticamente, de afectados por hipertensión.
+Implementar una función
+char **pacientes_prioritarios(char *cardiacos[], size_t n_cardiacos,
+char *hipertensos[], size_t n_hipertensos, size_t *n_prioritarios);
+que reciba dos listados, el de los n_cardiacos ciudadanos cardiacos y el de los n_hipertensos
+ciudadanos hipertensos y devuelva el listado de los ciudadanos con ambas afecciones por el
+nombre y la cantidad en n_prioritarios.
+Se debe devolver un arreglo de cadenas con los nombres. Ahora bien, no hace falta pedir memoria
+para cada una de las cadenas, bien puede apuntarse a los nombres ya recibidos en cardiacos o
+en hipertensos.*/
+
+char **pacientes_prioritarios(char *cardiacos[], size_t n_cardiacos, char *hipertensos[], size_t n_hipertensos, size_t *n_prioritarios) {
+    char **prioritarios = malloc((n_cardiacos + n_hipertensos) * sizeof(char *));
+    if(prioritarios == NULL) return NULL;
+
+    size_t icardiacos = 0;
+    size_t ihipertensos = 0;
+    size_t iprioritarios = 0;
+    while(icardiacos < n_cardiacos && ihipertensos < n_hipertensos) {
+        if(cardiacos[icardiacos] < hipertensos[ihipertensos])
+            prioritarios[iprioritarios++] = cardiacos[icardiacos++];
+        else if(cardiacos[icardiacos] > hipertensos[ihipertensos])
+            ihipertensos++;
+        else {
+            icardiacos++;
+            ihipertensos++;
+        }
+    }
+    return prioritarios;
+}
+
+
+/*3. Escribir una función recursiva que reciba dos cadenas de caracteres y devuelva la cantidad de
+veces que la segunda cadena aparece en la primera.
+Por ejemplo, la cadena "ssi" se encuentra dos veces en la cadena "Mississippi".
+(Ayuda: La función strncmp(const char *s1, const char *s2, size_t n); compara los primeros n caracteres de s1 y s2.)*/
+
+int cant_reps_cad(const char *string1, const char *string2) {
+   if(!strncmp(string1, string2, sizeof(char)))
+        return 0;
+    return (*string1 == *string2) + cant_reps_cad(string1 + 1, string2);
+}
